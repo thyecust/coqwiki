@@ -164,6 +164,23 @@ Unnamed_thm0 < cbv match.
   2 = 2
 ```
 
+## variants
+
+```coq
+Coq < Variant vsex: Type := vmale | vfemale.
+vsex is defined
+
+Coq < Definition vtrans (s: vsex): vsex := match s with
+Coq < | vmale => vfemale
+Coq < | vfemale => vmale
+Coq < end .
+vtrans is defined
+
+Coq < Compute (vtrans vfemale).
+     = vmale
+     : vsex
+```
+
 ----
 
 ```coq
