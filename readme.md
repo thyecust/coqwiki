@@ -30,9 +30,11 @@ Note: Prop:Type(1), SProp:Type(1), Set:Type(1), Type(i):Type(i+1). But users onl
 - function type: syntax like `forall ident: type1, type2`, denote the product type of variable `ident` of type `type1` over `type2`.
   1. if `ident` is used in `type2`, this is a dependent product
   2. if `ident` is not used in `type2`, this is a non-dependent product, alse written as `forall _: A, B` or `A -> B`, used to denote both propositional implication and function types.
-
+- assumption: extend the global environment with axioms, parameters, hypotheses or variables. bind ident with type.
 
 ## definitions
+
+- definition: extend the global environment by associating names to terms.
 
 ```coq
 (* https://coq.inria.fr/library/Coq.Init.Datatypes.html *)
@@ -45,6 +47,121 @@ This defines `ID` with type `forall A : Type, A -> A` and `id` with type `fun (A
 ```
 Check (id 2).
 Check (@id nat 2).
+```
+
+- assertion: states a proposition (or a type). enter proof mode.
+
+## conversion
+
+- cbv, call by value?
+- reduction
+  * beta-reduction, eliminates fun
+  * zeta-reduction, eliminates let
+  * match-reduction, eliminates match
+  * delta-reduction, eliminates variable/constant
+  * fix-reduction, replace fix
+  * cofix-reduction, replace cofix
+  * iota-reduction, do match-, fix- and cofix-reduction.
+- expansion
+  * eta-expansion, replace forall with fun
+
+```coq
+Coq < Goal 1 + 1 = 2.
+1 goal
+  
+  ============================
+  1 + 1 = 2
+
+Unnamed_thm0 < cbv delta.
+1 goal
+  
+  ============================
+  (fix add (n m : nat) {struct n} : nat :=
+     match n with
+     | 0 => m
+     | S p => S (add p m)
+     end) 1 1 = 2
+
+Unnamed_thm0 < cbv fix.
+1 goal
+  
+  ============================
+  (fun n m : nat =>
+   match n with
+   | 0 => m
+   | S p =>
+       S
+         ((fix add (n0 m0 : nat) {struct n0} : nat :=
+             match n0 with
+             | 0 => m0
+             | S p0 => S (add p0 m0)
+             end) p m)
+   end) 1 1 = 2
+
+Unnamed_thm0 < cbv beta.
+1 goal
+  
+  ============================
+  match 1 with
+  | 0 => 1
+  | S p =>
+      S
+        ((fix add (n m : nat) {struct n} : nat :=
+            match n with
+            | 0 => m
+            | S p0 => S (add p0 m)
+            end) p 1)
+  end = 2
+
+Unnamed_thm0 < cbv match.
+1 goal
+  
+  ============================
+  S
+    ((fix add (n m : nat) {struct n} : nat :=
+        match n with
+        | 0 => m
+        | S p => S (add p m)
+        end) 0 1) = 2
+
+Unnamed_thm0 < cbv fix.
+1 goal
+  
+  ============================
+  S
+    ((fun n m : nat =>
+      match n with
+      | 0 => m
+      | S p =>
+          S
+            ((fix add (n0 m0 : nat) {struct n0} : nat :=
+                match n0 with
+                | 0 => m0
+                | S p0 => S (add p0 m0)
+                end) p m)
+      end) 0 1) = 2
+
+Unnamed_thm0 < cbv beta.
+1 goal
+  
+  ============================
+  S
+    match 0 with
+    | 0 => 1
+    | S p =>
+        S
+          ((fix add (n m : nat) {struct n} : nat :=
+              match n with
+              | 0 => m
+              | S p0 => S (add p0 m)
+              end) p 1)
+    end = 2
+
+Unnamed_thm0 < cbv match.
+1 goal
+  
+  ============================
+  2 = 2
 ```
 
 ----
